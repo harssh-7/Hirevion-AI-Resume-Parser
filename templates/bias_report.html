@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HireVion · Bias Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#07050f;--bg2:#0e0a1a;--bg3:#130f22;
+  --cyan:#a78bfa;--cyan-dim:rgba(167,139,250,0.1);--indigo:#7c6ff7;--violet:#c084fc;
+  --border:rgba(167,139,250,0.14);--border-h:rgba(167,139,250,0.36);
+  --text:#ede9fe;--muted:#7c6fa0;--muted2:#3b2d5e;
+  --green:#34d399;--red:#f87171;--amber:#fbbf24;--blue:#818cf8;--violet2:#e879f9;
+  --card-bg:#0e0a1a;--nav-bg:rgba(7,5,15,0.88);
+  --glass-bg:rgba(20,14,38,0.62);--glass-shadow:0 8px 32px rgba(0,0,0,0.45),inset 0 1px 0 rgba(167,139,250,0.06);
+  --accent:#a78bfa;--text-muted:#7c6fa0;
+  --table-head:rgba(14,10,26,0.9);--table-row:rgba(20,14,38,0.55);--table-hover:rgba(167,139,250,0.07);
+  --filter-bg:rgba(14,10,26,0.75);--m-brow-bg:rgba(167,139,250,0.06);
+}
+:root[data-theme="light"]{
+  --bg:#f3f0ff;--bg2:#ffffff;--bg3:#e8e3ff;
+  --cyan:#6d28d9;--cyan-dim:rgba(109,40,217,0.07);--indigo:#4f46e5;--violet:#7c3aed;
+  --border:rgba(109,40,217,0.15);--border-h:rgba(109,40,217,0.38);
+  --text:#1e1b4b;--muted:#6b7280;--muted2:#a5b4fc;
+  --green:#059669;--red:#dc2626;--amber:#d97706;--blue:#4f46e5;--violet2:#9333ea;
+  --card-bg:#ffffff;--nav-bg:rgba(243,240,255,0.94);
+  --glass-bg:rgba(255,255,255,0.7);--glass-shadow:0 8px 32px rgba(109,40,217,0.09),inset 0 1px 0 rgba(255,255,255,0.9);
+  --accent:#6d28d9;--text-muted:#6b7280;
+  --table-head:rgba(232,227,255,0.9);--table-row:rgba(255,255,255,0.75);--table-hover:rgba(109,40,217,0.05);
+  --filter-bg:rgba(255,255,255,0.85);--m-brow-bg:rgba(0,0,0,0.04);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:.65rem 2rem;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.nav-mark{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,#a78bfa,#7c3aed);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',Georgia,serif;font-size:.75rem;font-weight:800;color:#fff}
+.nav-text{font-family:'Cormorant Garamond',Georgia,serif;font-size:.95rem;font-weight:700;color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:.5rem}
+.btn-nav{padding:.32rem .8rem;border-radius:6px;font-size:.73rem;font-weight:500;cursor:pointer;text-decoration:none;border:1px solid rgba(255,255,255,0.07);color:var(--muted);background:transparent;transition:all .2s;font-family:'Inter',system-ui,sans-serif}
+.btn-nav:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+.theme-btn{padding:.28rem .55rem;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:.85rem;color:var(--muted)}
+.theme-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+main{max-width:1200px;margin:0 auto;padding:1.5rem 2rem}
+.page-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.6rem;font-weight:800;margin-bottom:.3rem}
+.page-sub{color:var(--muted);font-size:.84rem;margin-bottom:1.4rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1.1rem}
+.kpi{padding:1rem 1.2rem;border-radius:11px;background:var(--card-bg);border:1px solid var(--border)}
+.kpi-val{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.9rem;font-weight:800;color:var(--amber)}
+.kpi-val.safe{color:var(--green)}
+.kpi-val.warn{color:var(--red)}
+.kpi-lbl{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.2rem}
+.section{padding:1.2rem 1.4rem;border-radius:12px;background:var(--card-bg);border:1px solid var(--border);margin-bottom:1rem}
+.sec-title{font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.9rem}
+.flag-row{display:flex;align-items:center;gap:.8rem;padding:.55rem 0;border-bottom:1px solid rgba(167,139,250,0.05)}
+.flag-row:last-child{border-bottom:none}
+.flag-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:99px;overflow:hidden}
+.flag-bar{height:100%;border-radius:99px;background:var(--amber)}
+.flag-name{font-size:.8rem;color:var(--text);font-weight:500;min-width:160px}
+.flag-count{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--amber);min-width:40px;text-align:right}
+.candidate-row{padding:.55rem .75rem;border-radius:7px;margin:.3rem 0;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.1)}
+.cr-name{font-size:.82rem;font-weight:600;color:var(--text)}
+.cr-flags{font-size:.72rem;color:var(--amber);margin-top:.18rem}
+.cr-score{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--cyan)}
+.chart-wrap{height:220px;margin-top:.5rem}
+.info-box{padding:.75rem 1rem;border-radius:8px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);color:var(--blue);font-size:.8rem;line-height:1.65;margin-bottom:.8rem}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo"><div class="nav-mark">H</div><span class="nav-text">HireVion</span></a>
+  <div class="nav-right">
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    <span style="font-size:.75rem;color:var(--muted)">Hi, <strong style="color:var(--text)">{{ username }}</strong></span>
+    <a href="/dashboard" class="btn-nav">← Dashboard</a>
+    <a href="/research" class="btn-nav">🔬 Research</a>
+    <a href="/logout" class="btn-nav">Sign Out</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-title">🔍 Bias Detection Report</div>
+  <p class="page-sub">Pool-level analysis of potential bias indicators across all {{ data.candidates|length }} candidate resumes.</p>
+
+  <div class="info-box">
+    ⓘ Bias detection flags surface <strong>indicators</strong> of potentially biased language or disclosures — not definitive bias.
+    These signals help recruiters make more equitable decisions. Using the Anonymization Mode removes PII before scoring.
+  </div>
+
+  {% set br = data.bias_report %}
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-val {% if br.flag_pct > 50 %}warn{% elif br.flag_pct > 20 %}{% else %}safe{% endif %}">{{ br.flag_pct }}%</div>
+      <div class="kpi-lbl">Resumes with Flags</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val safe">{{ br.gender_flagged }}</div>
+      <div class="kpi-lbl">Gender Language</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val safe">{{ br.age_flagged }}</div>
+      <div class="kpi-lbl">Age Disclosures</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val safe">{{ br.nationality_flagged }}</div>
+      <div class="kpi-lbl">Nationality Info</div>
+    </div>
+  </div>
+
+  {% set hire_strong = data.candidates | selectattr('recommendation', 'in', ['✅ Hire']) | list | length %}
+  <div style="margin-bottom: 1.1rem; padding: 1rem 1.2rem; border-radius: 11px; background: var(--card-bg, #0e0a1a); border: 1px solid var(--border);">
+    <div style="font-size: .9rem; color: var(--text); margin-bottom: .5rem;">
+      <strong>Strong Hire / Hire Count:</strong> {{ hire_strong }} of {{ data.candidates | length }} candidates ({{ ((hire_strong / (data.candidates | length) * 100) | round(1)) }}%)
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+    <!-- Flag frequency bar -->
+    <div class="section">
+      <div class="sec-title">Flag Type Frequency</div>
+      {% set total = data.candidates|length %}
+      {% for flag_name, count in br.top_flags %}
+      <div class="flag-row">
+        <div class="flag-name">{{ flag_name }}</div>
+        <div class="flag-bar-wrap"><div class="flag-bar" style="width:{{ [count/total*100,100]|min|round }}%"></div></div>
+        <div class="flag-count">{{ count }}</div>
+      </div>
+      {% else %}
+      <div style="color:var(--green);font-size:.82rem">✅ No bias flags detected across the pool.</div>
+      {% endfor %}
+    </div>
+
+    <!-- Chart -->
+    <div class="section">
+      <div class="sec-title">Bias Flag Distribution</div>
+      <div class="chart-wrap" id="bias-chart"></div>
+    </div>
+  </div>
+
+  <!-- Per-candidate bias list -->
+  <div class="section">
+    <div class="sec-title">Candidates with Bias Flags</div>
+    {% set flagged = [] %}
+    {% for c in data.candidates %}
+      {% if c.bias_flags %}
+        {% set _ = flagged.append(c) %}
+      {% endif %}
+    {% endfor %}
+    {% if flagged %}
+      {% for c in flagged %}
+      <div class="candidate-row">
+        <div style="display:flex;align-items:center;gap:.7rem">
+          <div style="flex:1">
+            <div class="cr-name">Rank #{{ c.rank }} — {{ c.name or c.filename or '—' }}</div>
+            <div class="cr-flags">{{ c.bias_flags.keys()|list|join(' · ') }}</div>
+          </div>
+          <div class="cr-score">{{ c.score|round(1) }} pts</div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:var(--green);font-size:.82rem;padding:.5rem">✅ No candidates have bias flags.</div>
+    {% endif %}
+  </div>
+
+  <!-- Recommendations -->
+  <div class="section">
+    <div class="sec-title">Recommendations</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div style="padding:.8rem;border-radius:8px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15)">
+        <div style="font-weight:600;font-size:.85rem;color:var(--green);margin-bottom:.35rem">✅ Best Practices</div>
+        <ul style="font-size:.78rem;color:var(--muted);padding-left:1rem;line-height:1.9">
+          <li>Enable Anonymization Mode for blind hiring</li>
+          <li>Focus shortlisting on skills and experience scores</li>
+          <li>Avoid penalising non-English resume language</li>
+          <li>Standardise scoring rubric across all reviewers</li>
+        </ul>
+      </div>
+      <div style="padding:.8rem;border-radius:8px;background:rgba(248,113,113,0.05);border:1px solid rgba(248,113,113,0.15)">
+        <div style="font-weight:600;font-size:.85rem;color:var(--red);margin-bottom:.35rem">⚠ Flags to Investigate</div>
+        <ul style="font-size:.78rem;color:var(--muted);padding-left:1rem;line-height:1.9">
+          <li>Gender-coded language in self-descriptions</li>
+          <li>Age or date-of-birth disclosures</li>
+          <li>Nationality or citizenship references</li>
+          <li>Photo references (appearance bias risk)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function toggleTheme() {
+  const root = document.documentElement
+  const isDark = root.getAttribute('data-theme') === 'dark'
+  root.setAttribute('data-theme', isDark ? 'light' : 'dark')
+  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙'
+  localStorage.setItem('hv_theme', isDark ? 'light' : 'dark')
+  drawChart()
+}
+;(function(){
+  const saved = localStorage.getItem('hv_theme') || 'dark'
+  document.documentElement.setAttribute('data-theme', saved)
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '🌙' : '☀️'
+})()
+
+const BR = {{ data.bias_report | tojson }};
+
+function drawChart() {
+  const fc = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim()||'#64748b'
+  const flags = Object.entries(BR.flag_counts||{}).sort((a,b)=>b[1]-a[1])
+  if(!flags.length) return
+  Plotly.newPlot('bias-chart',[{
+    x: flags.map(f=>f[0]),
+    y: flags.map(f=>f[1]),
+    type:'bar',
+    marker:{color:['#f59e0b','#f87171','#6366f1','#10b981','#60a5fa'].slice(0,flags.length),opacity:.8},
+    hovertemplate:'%{x}: %{y} candidates<extra></extra>'
+  }],{
+    paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:fc,size:10,family:'DM Sans'},
+    margin:{t:10,r:10,b:80,l:35},
+    xaxis:{tickangle:-30,color:fc},
+    yaxis:{color:fc,title:'Count'}
+  },{responsive:true,displayModeBar:false})
+}
+drawChart()
+</script>
+</body>
+</html>

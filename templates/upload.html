@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HireVion · Upload Resumes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root[data-theme="dark"]{
+  --bg:#040810;--bg2:#0a0f1c;--bg3:#111827;
+  --cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.09);
+  --border:rgba(0,212,255,0.09);--border-h:rgba(0,212,255,0.25);
+  --text:#e2e8f0;--muted:#64748b;--muted2:#334155;
+  --green:#10b981;--err:#f87171;
+  --card-bg:rgba(10,15,28,0.82);--nav-bg:rgba(4,8,16,0.97);
+}
+:root[data-theme="light"]{
+  --bg:#eef2fb;--bg2:#ffffff;--bg3:#e2e8f8;
+  --cyan:#0077aa;--cyan-dim:rgba(0,119,170,0.1);
+  --border:rgba(0,119,170,0.14);--border-h:rgba(0,119,170,0.32);
+  --text:#1a202c;--muted:#6b7280;--muted2:#9ca3af;
+  --green:#059669;--err:#dc2626;
+  --card-bg:rgba(255,255,255,0.92);--nav-bg:rgba(238,242,251,0.97);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden}
+
+/* ── BG SCENE ── */
+.bg-scene{position:fixed;inset:0;z-index:-1;pointer-events:none}
+[data-theme="dark"] .bg-scene{background:#02050c}
+[data-theme="light"] .bg-scene{background:#eaeff8}
+.bg-orb1{position:absolute;inset:0}
+[data-theme="dark"] .bg-orb1{background:radial-gradient(ellipse 100% 80% at 80% 55%,rgba(0,75,155,0.55) 0%,rgba(0,15,50,0.45) 45%,transparent 70%)}
+[data-theme="light"] .bg-orb1{background:radial-gradient(ellipse 100% 80% at 80% 55%,rgba(0,100,180,0.1) 0%,rgba(160,200,255,0.12) 45%,transparent 70%)}
+.bg-orb2{position:absolute;inset:0}
+[data-theme="dark"] .bg-orb2{background:radial-gradient(ellipse 45% 35% at 85% 50%,rgba(0,160,230,0.18) 0%,transparent 55%)}
+[data-theme="light"] .bg-orb2{background:radial-gradient(ellipse 45% 35% at 85% 50%,rgba(0,130,200,0.07) 0%,transparent 55%)}
+.bg-orb3{position:absolute;inset:0}
+[data-theme="dark"] .bg-orb3{background:radial-gradient(ellipse 38% 55% at 12% 82%,rgba(25,50,120,0.22) 0%,transparent 60%)}
+[data-theme="light"] .bg-orb3{background:radial-gradient(ellipse 38% 55% at 12% 82%,rgba(80,120,240,0.08) 0%,transparent 60%)}
+/* subtle dim overlay */
+.bg-dim{position:absolute;inset:0;background:rgba(0,0,0,0.18)}
+[data-theme="light"] .bg-dim{background:rgba(0,0,0,0.04)}
+
+/* ── 3D RING SPHERE — top right ── */
+.scene-3d{position:fixed;right:2%;top:8%;width:120px;height:120px;perspective:480px;pointer-events:none;opacity:.18;z-index:1}
+.ring-wrap{width:120px;height:120px;position:relative;transform-style:preserve-3d;animation:ringRot 16s linear infinite}
+@keyframes ringRot{from{transform:rotateX(20deg) rotateY(0) rotateZ(10deg)}to{transform:rotateX(20deg) rotateY(360deg) rotateZ(10deg)}}
+.ring{position:absolute;border-radius:50%;border:1.5px solid rgba(0,212,255,0.65)}
+.ring:nth-child(1){width:120px;height:120px;top:0;left:0;transform:rotateX(0deg)}
+.ring:nth-child(2){width:120px;height:120px;top:0;left:0;transform:rotateX(60deg)}
+.ring:nth-child(3){width:120px;height:120px;top:0;left:0;transform:rotateX(120deg)}
+.ring:nth-child(4){width:78px;height:78px;top:21px;left:21px;transform:rotateY(0deg);border-color:rgba(99,102,241,0.55)}
+.ring:nth-child(5){width:78px;height:78px;top:21px;left:21px;transform:rotateY(90deg);border-color:rgba(99,102,241,0.55)}
+.ring:nth-child(6){width:38px;height:38px;top:41px;left:41px;transform:rotateX(45deg) rotateY(45deg);border-color:rgba(255,255,255,0.3)}
+
+/* ── 3D CUBE — left lower area ── */
+.geo-wrap{position:fixed;left:2%;bottom:15%;width:90px;height:90px;perspective:380px;pointer-events:none;opacity:.15;z-index:1}
+.geo-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:geoSpin 22s linear infinite}
+@keyframes geoSpin{from{transform:rotateX(15deg) rotateY(0deg) rotateZ(5deg)}to{transform:rotateX(15deg) rotateY(360deg) rotateZ(5deg)}}
+.geo-face{position:absolute;border:1px solid rgba(139,92,246,0.5);background:rgba(139,92,246,0.03)}
+
+/* ── SECOND CUBE — right bottom ── */
+.geo-wrap2{position:fixed;right:2%;bottom:10%;width:70px;height:70px;perspective:300px;pointer-events:none;opacity:.13;z-index:1}
+.geo-inner2{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:geoSpin2 30s linear infinite}
+@keyframes geoSpin2{from{transform:rotateX(-10deg) rotateY(0deg) rotateZ(-8deg)}to{transform:rotateX(-10deg) rotateY(-360deg) rotateZ(-8deg)}}
+.geo-face2{position:absolute;border:1px solid rgba(0,212,255,0.45);background:rgba(0,212,255,0.02)}
+
+/* ── PYRAMID — top left ── */
+.pyramid-wrap{position:fixed;left:2%;top:12%;width:80px;height:80px;perspective:350px;pointer-events:none;opacity:.12;z-index:1}
+.pyramid-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:pyrSpin 28s linear infinite}
+@keyframes pyrSpin{from{transform:rotateX(30deg) rotateY(0deg)}to{transform:rotateX(30deg) rotateY(360deg)}}
+.pyr-face{position:absolute;border:1px solid rgba(16,185,129,0.5);background:rgba(16,185,129,0.02);clip-path:polygon(50% 0%,100% 100%,0% 100%)}
+
+/* ── DNA HELIX — far left center ── */
+.dna-wrap{position:fixed;left:1.2%;top:50%;transform:translateY(-50%);width:50px;height:200px;pointer-events:none;opacity:.22;z-index:1}
+.dna-strand{position:absolute;width:100%;height:100%}
+.dna-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.dna-dot.b{background:#8b5cf6;box-shadow:0 0 6px #8b5cf6}
+.dna-bar{position:absolute;height:1px;background:linear-gradient(90deg,rgba(0,212,255,0.4),rgba(139,92,246,0.4));width:100%}
+
+/* ── FLOATING TECH CHIPS ── */
+.tech-chips{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.tchip{
+  position:absolute;display:flex;align-items:center;gap:.45rem;
+  padding:.42rem .95rem;border-radius:99px;
+  background:rgba(4,8,20,0.55);
+  backdrop-filter:blur(20px) saturate(1.6);
+  -webkit-backdrop-filter:blur(20px) saturate(1.6);
+  border:1px solid rgba(0,212,255,0.18);
+  font-family:'JetBrains Mono',monospace;font-size:.58rem;
+  letter-spacing:.1em;color:rgba(0,212,255,0.85);
+  box-shadow:0 8px 32px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.07);
+  white-space:nowrap;
+  animation-timing-function:cubic-bezier(.4,.0,.6,1);
+  animation-iteration-count:infinite;animation-direction:alternate;
+}
+.tchip::before{content:'';position:absolute;inset:0;border-radius:99px;background:linear-gradient(135deg,rgba(255,255,255,0.05),transparent 60%);pointer-events:none}
+.tchip-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;animation:tchipPulse 2s infinite}
+@keyframes tchipPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(.6)}}
+
+/* ── CHIP POSITIONS — cleared away from center content ── */
+/* TOP ROW — above the main cards */
+.tc-nlp   {top:6%;  left:50%; transform:translateX(-50%); animation:chipFloat1 14s infinite alternate}
+.tc-sbert {top:6%;  left:30%; animation:chipFloat2 17s infinite alternate; border-color:rgba(139,92,246,0.28);color:rgba(180,140,255,0.88)}
+.tc-sbert .tchip-dot{background:#8b5cf6;box-shadow:0 0 8px #8b5cf6}
+.tc-ml    {top:6%;  left:66%; animation:chipFloat3 13s infinite alternate; border-color:rgba(251,191,36,0.28);color:rgba(251,191,36,0.88)}
+.tc-ml .tchip-dot{background:#fbbf24;box-shadow:0 0 8px #fbbf24}
+
+/* BOTTOM ROW — below the main cards */
+.tc-bias  {bottom:6%;left:32%;animation:chipFloat4 15s infinite alternate; border-color:rgba(16,185,129,0.28);color:rgba(16,185,129,0.88)}
+.tc-bias .tchip-dot{background:#10b981;box-shadow:0 0 8px #10b981}
+.tc-rank  {bottom:6%;left:50%;transform:translateX(-50%); animation:chipFloat5 19s infinite alternate; border-color:rgba(0,212,255,0.25);color:rgba(0,212,255,0.85)}
+.tc-xai   {bottom:6%;left:66%;animation:chipFloat6 16s infinite alternate; border-color:rgba(248,113,113,0.28);color:rgba(248,113,113,0.88)}
+.tc-xai .tchip-dot{background:#f87171;box-shadow:0 0 8px #f87171}
+
+/* LEFT EDGE — vertically stacked */
+.tc-vec   {top:38%;left:.8%;animation:chipFloat7 21s infinite alternate; border-color:rgba(99,102,241,0.28);color:rgba(130,120,255,0.88)}
+.tc-vec .tchip-dot{background:#6366f1;box-shadow:0 0 8px #6366f1}
+.tc-ner   {top:55%;left:.8%;animation:chipFloat8 18s infinite alternate; border-color:rgba(0,212,255,0.2)}
+
+/* RIGHT EDGE — vertically stacked */
+.tc-ocr   {top:35%;right:.8%;animation:chipFloat9 20s infinite alternate; border-color:rgba(251,191,36,0.22);color:rgba(251,191,36,0.85)}
+.tc-ocr .tchip-dot{background:#fbbf24;box-shadow:0 0 8px #fbbf24}
+.tc-score {top:52%;right:.8%;animation:chipFloat10 15s infinite alternate; border-color:rgba(16,185,129,0.25);color:rgba(16,185,129,0.85)}
+.tc-score .tchip-dot{background:#10b981;box-shadow:0 0 8px #10b981}
+
+@keyframes chipFloat1 {0%{transform:translateX(-50%) translateY(0) rotate(-1deg)}100%{transform:translateX(-50%) translateY(-16px) rotate(1deg)}}
+@keyframes chipFloat2 {0%{transform:translateY(0) rotate(-2deg)}100%{transform:translateY(-18px) rotate(1.5deg)}}
+@keyframes chipFloat3 {0%{transform:translateY(0) rotate(1.5deg)}100%{transform:translateY(-14px) rotate(-1deg)}}
+@keyframes chipFloat4 {0%{transform:translateY(0) rotate(1deg)}100%{transform:translateY(-20px) rotate(-1.5deg)}}
+@keyframes chipFloat5 {0%{transform:translateX(-50%) translateY(0) rotate(-1.5deg)}100%{transform:translateX(-50%) translateY(-12px) rotate(1deg)}}
+@keyframes chipFloat6 {0%{transform:translateY(0) rotate(2deg)}100%{transform:translateY(-16px) rotate(-1deg)}}
+@keyframes chipFloat7 {0%{transform:translateY(0) rotate(-2.5deg)}100%{transform:translateY(-22px) rotate(1deg)}}
+@keyframes chipFloat8 {0%{transform:translateY(0) rotate(1.5deg)}100%{transform:translateY(-18px) rotate(-2deg)}}
+@keyframes chipFloat9 {0%{transform:translateY(0) rotate(2deg)}100%{transform:translateY(-20px) rotate(-1.5deg)}}
+@keyframes chipFloat10{0%{transform:translateY(0) rotate(-1deg)}100%{transform:translateY(-14px) rotate(2deg)}}
+
+/* ── FLOATING PARTICLES ── */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;animation:particleDrift linear infinite;opacity:0}
+@keyframes particleDrift{
+  0%  {opacity:0;transform:translateY(0) scale(0)}
+  10% {opacity:.6}
+  90% {opacity:.2}
+  100%{opacity:0;transform:translateY(-100vh) scale(1.2)}
+}
+
+/* ── DATA STREAM LINES ── */
+.stream-lines{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.sline{position:absolute;width:1px;background:linear-gradient(to bottom,transparent,rgba(0,212,255,0.15),transparent);animation:streamFall linear infinite;opacity:0}
+@keyframes streamFall{0%{opacity:0;transform:translateY(-100%)}15%{opacity:1}85%{opacity:.3}100%{opacity:0;transform:translateY(200%)}}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem 2rem;background:var(--nav-bg);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.nav-mark{width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,var(--cyan),#6366f1);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant Garamond',Georgia,serif;font-size:.8rem;font-weight:800;color:#fff}
+.nav-text{font-family:'Cormorant Garamond',Georgia,serif;font-size:1rem;font-weight:700;color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:.6rem}
+.nav-user{font-size:.78rem;color:var(--muted)}
+.nav-user strong{color:var(--text)}
+.btn-nav{padding:.35rem .85rem;border-radius:6px;font-size:.75rem;font-weight:500;cursor:pointer;
+  text-decoration:none;border:1px solid rgba(255,255,255,0.08);color:var(--muted);
+  background:transparent;transition:all .2s;font-family:'Inter',system-ui,sans-serif}
+.btn-nav:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+.theme-btn{padding:.32rem .6rem;border-radius:6px;border:1px solid var(--border);
+  background:transparent;cursor:pointer;font-size:.9rem;transition:all .2s;color:var(--muted)}
+.theme-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ── MAIN ── */
+main{position:relative;z-index:2;max-width:1080px;margin:0 auto;padding:1.5rem 2rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;align-items:start}
+@media(max-width:768px){.two-col{grid-template-columns:1fr}.scene-3d,.geo-wrap,.geo-wrap2,.pyramid-wrap,.dna-wrap,.tech-chips,.stream-lines,.particles{display:none}}
+.page-eyebrow{font-size:.65rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--cyan);margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem}
+.page-eyebrow::before{content:'';width:14px;height:1px;background:var(--cyan)}
+.page-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.8rem;font-weight:800;color:var(--text);margin-bottom:.3rem}
+.page-sub{color:var(--muted);font-size:.84rem;margin-bottom:1.2rem;line-height:1.6;max-width:580px}
+.error-banner{padding:.7rem 1rem;border-radius:9px;margin-bottom:1rem;
+  background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.22);
+  color:#fca5a5;font-size:.8rem;display:flex;align-items:center;gap:.5rem}
+
+/* ── CARDS ── */
+.card{padding:1.2rem 1.4rem;border-radius:12px;margin-bottom:.8rem;
+  background:var(--card-bg);border:1px solid var(--border);transition:border-color .3s,background .3s;
+  backdrop-filter:blur(10px)}
+.card:hover{border-color:var(--border-h)}
+.card-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+.card-icon{width:32px;height:32px;border-radius:8px;background:var(--cyan-dim);
+  border:1px solid rgba(0,212,255,0.15);display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.card-title-text{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;font-size:.88rem;color:var(--text)}
+.card-badge{margin-left:auto;padding:.15rem .55rem;border-radius:99px;font-size:.62rem;font-weight:600;
+  background:var(--cyan-dim);border:1px solid rgba(0,212,255,0.18);color:var(--cyan);font-family:'JetBrains Mono',monospace}
+
+/* ── DROP ZONE ── */
+.drop-zone{border:2px dashed rgba(0,212,255,0.2);border-radius:10px;
+  padding:1.5rem 1.2rem;text-align:center;cursor:pointer;
+  background:rgba(0,212,255,0.02);transition:all .3s;position:relative}
+.drop-zone.drag-over{border-color:rgba(0,212,255,0.5);background:rgba(0,212,255,0.06)}
+.drop-icon{font-size:1.6rem;margin-bottom:.5rem;display:block;opacity:.6}
+.drop-title{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.drop-sub{font-size:.74rem;color:var(--muted)}
+.drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-list{margin-top:.7rem;display:flex;flex-wrap:wrap;gap:.35rem}
+.file-chip{padding:.22rem .65rem;border-radius:99px;font-size:.7rem;font-weight:500;
+  background:var(--cyan-dim);border:1px solid rgba(0,212,255,0.2);color:var(--cyan)}
+
+/* ── FORM ── */
+.form-group{margin-bottom:.7rem}
+label{display:block;font-size:.7rem;font-weight:600;color:var(--muted);
+  letter-spacing:.07em;text-transform:uppercase;margin-bottom:.4rem}
+textarea,input[type="text"]{width:100%;padding:.65rem .9rem;border-radius:8px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  color:var(--text);font-size:.83rem;font-family:'Inter',system-ui,sans-serif;
+  outline:none;transition:all .25s;resize:vertical}
+[data-theme="light"] textarea,[data-theme="light"] input[type="text"]{
+  background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.1)}
+textarea:focus,input[type="text"]:focus{border-color:rgba(0,212,255,0.35);box-shadow:0 0 0 3px rgba(0,212,255,0.07)}
+textarea::placeholder,input::placeholder{color:var(--muted);font-size:.8rem}
+textarea{min-height:80px;line-height:1.5}
+
+/* ── SKILL TAGS ── */
+.skill-row{display:flex;gap:.4rem;margin-top:.4rem}
+.skill-row input{flex:1;margin-bottom:0}
+.btn-add{padding:.55rem .85rem;border-radius:7px;border:1px solid rgba(0,212,255,0.2);
+  background:var(--cyan-dim);color:var(--cyan);font-size:.78rem;font-weight:600;
+  white-space:nowrap;cursor:pointer;font-family:'Inter',system-ui,sans-serif;transition:all .2s}
+.btn-add:hover{background:rgba(0,212,255,0.16)}
+.skill-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+.skill-tag{padding:.2rem .6rem;border-radius:5px;font-size:.7rem;font-weight:500;
+  background:var(--cyan-dim);border:1px solid rgba(0,212,255,0.18);color:var(--cyan);
+  display:flex;align-items:center;gap:.25rem;cursor:pointer;transition:background .2s}
+.skill-tag:hover{background:rgba(0,212,255,0.14)}
+.skill-tag .rm{opacity:.45;font-size:.78rem}
+
+/* ── TOGGLE SWITCH ── */
+.toggle-row{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;
+  border-radius:8px;background:rgba(0,0,0,0.08);border:1px solid var(--border);margin-top:.4rem}
+.toggle-label{font-size:.8rem;color:var(--text);font-weight:500}
+.toggle-sub{font-size:.72rem;color:var(--muted)}
+.switch{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,0.1);
+  border-radius:22px;transition:.3s;border:1px solid rgba(255,255,255,0.15)}
+.slider:before{position:absolute;content:"";height:16px;width:16px;left:2px;bottom:2px;
+  background:#fff;border-radius:50%;transition:.3s}
+input:checked + .slider{background:var(--cyan)}
+input:checked + .slider:before{transform:translateX(18px)}
+
+/* ── SUBMIT ── */
+.btn-primary{width:100%;padding:.78rem 1.5rem;border-radius:9px;border:none;
+  background:linear-gradient(135deg,var(--cyan),#6366f1);
+  color:#fff;font-size:.88rem;font-weight:600;letter-spacing:.02em;
+  cursor:pointer;transition:all .3s;font-family:'Inter',system-ui,sans-serif;
+  box-shadow:0 0 22px rgba(0,212,255,0.2)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 38px rgba(0,212,255,0.38)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.submit-note{font-size:.7rem;color:var(--muted);margin-top:.45rem;text-align:center}
+
+/* ── HINT ── */
+.hint{padding:.65rem .85rem;border-radius:7px;margin-top:.6rem;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);
+  font-size:.74rem;color:var(--muted);line-height:1.6}
+.hint code{background:var(--cyan-dim);color:var(--cyan);border-radius:4px;
+  padding:.03rem .28rem;font-family:'JetBrains Mono',monospace;font-size:.7rem}
+
+/* ── SPINNER ── */
+.spinner{display:none;width:16px;height:16px;border:2px solid rgba(0,212,255,0.15);
+  border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── OVERLAY ── */
+.proc-overlay{position:fixed;inset:0;z-index:500;background:rgba(4,8,16,0.88);
+  backdrop-filter:blur(14px);display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:1.4rem}
+.proc-overlay.show{display:flex}
+.proc-spinner{width:50px;height:50px;border:3px solid rgba(0,212,255,0.1);
+  border-top-color:var(--cyan);border-radius:50%;animation:spin .9s linear infinite}
+.proc-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;font-weight:700;color:#e2e8f0}
+.proc-sub{font-size:.8rem;color:#64748b;text-align:center;max-width:300px}
+.proc-steps{display:flex;flex-direction:column;gap:.35rem;align-items:center}
+.proc-step{font-size:.74rem;font-family:'JetBrains Mono',monospace;color:#334155;
+  padding:.28rem .75rem;background:rgba(0,212,255,0.03);border-radius:5px;border:1px solid rgba(0,212,255,0.07)}
+.proc-step.active{color:#00d4ff;border-color:rgba(0,212,255,0.2);background:rgba(0,212,255,0.08)}
+</style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="bg-scene">
+  <div class="bg-orb1"></div>
+  <div class="bg-orb2"></div>
+  <div class="bg-orb3"></div>
+  <div class="bg-dim"></div>
+</div>
+
+<!-- PARTICLES -->
+<div class="particles" id="particles"></div>
+
+<!-- STREAM LINES -->
+<div class="stream-lines" id="streamLines"></div>
+
+<!-- 3D RING SPHERE — top right -->
+<div class="scene-3d">
+  <div class="ring-wrap">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+  </div>
+</div>
+
+<!-- 3D CUBE — bottom left -->
+<div class="geo-wrap" id="geoWrap"></div>
+
+<!-- 3D CUBE 2 — bottom right -->
+<div class="geo-wrap2" id="geoWrap2"></div>
+
+<!-- PYRAMID — top left -->
+<div class="pyramid-wrap" id="pyrWrap"></div>
+
+<!-- DNA HELIX — left center -->
+<div class="dna-wrap" id="dnaWrap"></div>
+
+<!-- FLOATING TECH CHIPS -->
+<div class="tech-chips">
+  <!-- BOTTOM ROW — only XAI kept -->
+  <div class="tchip tc-xai">
+    <span class="tchip-dot"></span>
+    🔬 XAI Enabled
+  </div>
+  <!-- LEFT EDGE -->
+  <div class="tchip tc-vec">
+    <span class="tchip-dot"></span>
+    🧬 Vectorising
+  </div>
+  <div class="tchip tc-ner">
+    <span class="tchip-dot" style="background:#00d4ff;box-shadow:0 0 8px #00d4ff"></span>
+    🏷️ NER Active
+  </div>
+  <!-- RIGHT EDGE -->
+  <div class="tchip tc-ocr">
+    <span class="tchip-dot"></span>
+    🖨️ OCR Ready
+  </div>
+  <div class="tchip tc-score">
+    <span class="tchip-dot"></span>
+    ✅ Scoring Live
+  </div>
+</div>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+      <defs>
+        <linearGradient id="ul1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#00d4ff"/>
+          <stop offset="100%" stop-color="#6366f1"/>
+        </linearGradient>
+        <filter id="uglw"><feGaussianBlur stdDeviation="1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <path d="M14 2 L24 7.5 L24 20.5 L14 26 L4 20.5 L4 7.5 Z" fill="url(#ul1)" opacity="0.14" stroke="url(#ul1)" stroke-width="1"/>
+      <path d="M9 8 L9 20" stroke="url(#ul1)" stroke-width="2" stroke-linecap="round" filter="url(#uglw)"/>
+      <path d="M19 8 L19 20" stroke="#6366f1" stroke-width="2" stroke-linecap="round" filter="url(#uglw)"/>
+      <path d="M9 14 L19 14" stroke="url(#ul1)" stroke-width="2" stroke-linecap="round" filter="url(#uglw)"/>
+      <path d="M11 10 L14 16 L17 10" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      <circle cx="9" cy="8" r="1.5" fill="#00d4ff" opacity="0.9"/>
+      <circle cx="19" cy="8" r="1.5" fill="#8b5cf6" opacity="0.9"/>
+      <circle cx="9" cy="20" r="1.5" fill="#6366f1" opacity="0.9"/>
+      <circle cx="19" cy="20" r="1.5" fill="#00d4ff" opacity="0.9"/>
+    </svg>
+    <span class="nav-text">HireVion</span>
+  </a>
+  <div class="nav-right">
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode">🌙</button>
+    <span class="nav-user">Signed in as <strong>{{ username }}</strong></span>
+    <a href="/logout" class="btn-nav">Sign Out</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-eyebrow">Resume Intelligence Pipeline</div>
+  <h1 class="page-title">Upload &amp; Configure</h1>
+  <p class="page-sub">Upload PDF/DOCX resumes or a bulk CSV. Optionally add a job description and required skills for semantic matching and skill-gap analysis.</p>
+
+  {% if error %}
+  <div class="error-banner">⚠ {{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/process" enctype="multipart/form-data" id="main-form">
+  <div class="two-col">
+
+  <!-- LEFT: UPLOAD -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📂</div>
+        <span class="card-title-text">Upload Resumes</span>
+        <span class="card-badge">PDF · DOCX · CSV</span>
+      </div>
+      <div style="display:flex;gap:.3rem;margin-bottom:.9rem;background:rgba(255,255,255,0.03);border-radius:8px;padding:.2rem">
+        <button type="button" id="ut-files" onclick="uploadTab('files')"
+          style="flex:1;padding:.4rem;border-radius:6px;border:1px solid rgba(0,212,255,0.2);cursor:pointer;font-family:'Inter',system-ui,sans-serif;font-size:.78rem;font-weight:500;transition:all .2s;background:rgba(0,212,255,0.1);color:#00d4ff">
+          📄 PDF / DOCX Files</button>
+        <button type="button" id="ut-csv" onclick="uploadTab('csv')"
+          style="flex:1;padding:.4rem;border-radius:6px;border:none;cursor:pointer;font-family:'Inter',system-ui,sans-serif;font-size:.78rem;font-weight:500;transition:all .2s;background:transparent;color:#64748b">
+          📊 Bulk CSV</button>
+      </div>
+      <div id="panel-files">
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" name="resumes" id="resume-input" multiple accept=".pdf,.docx,.txt" onchange="handleFiles(this)"/>
+          <span class="drop-icon">⬆</span>
+          <div class="drop-title" id="drop-title">Drop resumes here or click to browse</div>
+          <div class="drop-sub">Supports PDF, DOCX — multiple files allowed</div>
+        </div>
+        <div class="file-list" id="file-list"></div>
+      </div>
+      <div id="panel-csv" style="display:none">
+        <div class="drop-zone" style="padding:1.3rem" id="csv-drop">
+          <input type="file" name="csv_file" id="csv-input" accept=".csv" onchange="handleCsv(this)"/>
+          <span style="font-size:1.4rem;display:block;margin-bottom:.4rem;opacity:.5">📁</span>
+          <div class="drop-title" id="csv-title">Drop CSV or click to browse</div>
+          <div class="drop-sub" id="csv-sub">No file selected</div>
+        </div>
+        <div class="hint">Expected columns: <code>resume</code> or <code>text</code> · <code>name</code> · <code>email</code> · <code>phone</code></div>
+      </div>
+      <div class="toggle-row" style="margin-top:.9rem">
+        <div>
+          <div class="toggle-label">🔒 Anonymize Resumes</div>
+          <div class="toggle-sub">Strip names, emails, phones before scoring (blind hiring)</div>
+        </div>
+        <label class="switch" style="margin-left:auto">
+          <input type="checkbox" id="anon-toggle" onchange="updateAnonHidden()"/>
+          <span class="slider"></span>
+        </label>
+        <input type="hidden" name="anonymize" id="anon-hidden" value="false"/>
+      </div>
+    </div>
+    <div>
+      <button type="button" class="btn-primary" id="submit-btn" onclick="handleSubmit()">
+        Analyse Resumes →
+      </button>
+      <div style="display:flex;align-items:center;gap:.5rem;margin-top:.4rem;justify-content:center">
+        <div class="spinner" id="spinner"></div>
+        <span class="submit-note">The AI pipeline will extract, score, and rank all candidates.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: JD + SKILLS -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📝</div>
+        <span class="card-title-text">Job Description</span>
+        <span class="card-badge">Optional</span>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <textarea name="job_description" placeholder="Paste the job description here. HireVion will compute semantic similarity using Sentence-BERT…"></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🎯</div>
+        <span class="card-title-text">Required Skills</span>
+        <span class="card-badge">Optional</span>
+      </div>
+      <label>Add skills one by one — press Enter or click Add</label>
+      <div class="skill-row">
+        <input type="text" id="skill-input" placeholder="e.g. Python, Docker, React…"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addSkill()}"/>
+        <button type="button" class="btn-add" onclick="addSkill()">+ Add</button>
+      </div>
+      <div class="skill-tags" id="skill-tags"></div>
+      <input type="hidden" name="required_skills" id="skills-hidden"/>
+    </div>
+  </div>
+
+  </div>
+  </form>
+</main>
+
+<!-- PROCESSING OVERLAY -->
+<div class="proc-overlay" id="proc-overlay">
+  <div class="proc-spinner"></div>
+  <div class="proc-title">Analysing Resumes</div>
+  <div class="proc-sub">Running the NLP pipeline. This may take 15–60 seconds.</div>
+  <div class="proc-steps">
+    <div class="proc-step active" id="ps1">① Extracting text &amp; parsing entities</div>
+    <div class="proc-step" id="ps2">② Computing Sentence-BERT embeddings</div>
+    <div class="proc-step" id="ps3">③ Scoring &amp; ranking candidates</div>
+    <div class="proc-step" id="ps4">④ Generating XAI breakdown</div>
+  </div>
+</div>
+
+<script>
+// ── Theme ─────────────────────────────────────────────────────
+function toggleTheme() {
+  const root = document.documentElement
+  const isDark = root.getAttribute('data-theme') === 'dark'
+  root.setAttribute('data-theme', isDark ? 'light' : 'dark')
+  document.getElementById('theme-btn').textContent = isDark ? '☀️' : '🌙'
+  localStorage.setItem('hv_theme', isDark ? 'light' : 'dark')
+}
+;(function(){
+  const saved = localStorage.getItem('hv_theme') || 'dark'
+  document.documentElement.setAttribute('data-theme', saved)
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '🌙' : '☀️'
+})()
+
+// ── Anonymize ────────────────────────────────────────────────
+function updateAnonHidden() {
+  document.getElementById('anon-hidden').value =
+    document.getElementById('anon-toggle').checked ? 'true' : 'false'
+}
+
+// ── Upload Tab ────────────────────────────────────────────────
+function uploadTab(tab) {
+  const isFiles = tab === 'files'
+  document.getElementById('panel-files').style.display = isFiles ? '' : 'none'
+  document.getElementById('panel-csv').style.display   = isFiles ? 'none' : ''
+  const btnF = document.getElementById('ut-files'), btnC = document.getElementById('ut-csv')
+  if(isFiles){
+    btnF.style.background='rgba(0,212,255,0.1)'; btnF.style.color='#00d4ff'; btnF.style.border='1px solid rgba(0,212,255,0.2)'
+    btnC.style.background='transparent'; btnC.style.color='#64748b'; btnC.style.border='none'
+  } else {
+    btnC.style.background='rgba(0,212,255,0.1)'; btnC.style.color='#00d4ff'; btnC.style.border='1px solid rgba(0,212,255,0.2)'
+    btnF.style.background='transparent'; btnF.style.color='#64748b'; btnF.style.border='none'
+  }
+}
+
+// ── Drag & Drop ───────────────────────────────────────────────
+const dz = document.getElementById('drop-zone')
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over') })
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'))
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag-over')
+  if(e.dataTransfer.files.length) {
+    document.getElementById('resume-input').files = e.dataTransfer.files
+    updateFileList(e.dataTransfer.files)
+  }
+})
+function handleFiles(input) { updateFileList(input.files) }
+function updateFileList(files) {
+  const list = document.getElementById('file-list')
+  list.innerHTML = ''
+  Array.from(files).forEach(f => {
+    const chip = document.createElement('div')
+    chip.className = 'file-chip'
+    chip.textContent = f.name
+    list.appendChild(chip)
+  })
+  document.getElementById('drop-title').textContent =
+    files.length > 0 ? `${files.length} file(s) selected ✓` : 'Drop resumes here or click to browse'
+}
+function handleCsv(input) {
+  if(input.files.length > 0) {
+    document.getElementById('csv-title').textContent = '✓ CSV ready'
+    document.getElementById('csv-sub').textContent = input.files[0].name
+  }
+}
+
+// ── Skills ─────────────────────────────────────────────────────
+let skills = []
+function addSkill() {
+  const inp = document.getElementById('skill-input')
+  const val = inp.value.trim()
+  if(val && !skills.includes(val.toLowerCase())) {
+    skills.push(val.toLowerCase()); renderSkills(); inp.value = ''
+  }
+}
+function removeSkill(s) { skills = skills.filter(x => x !== s); renderSkills() }
+function renderSkills() {
+  const c = document.getElementById('skill-tags')
+  c.innerHTML = ''
+  skills.forEach(s => {
+    const t = document.createElement('div')
+    t.className = 'skill-tag'
+    t.innerHTML = `${s} <span class="rm" onclick="removeSkill('${s}')">✕</span>`
+    c.appendChild(t)
+  })
+  document.getElementById('skills-hidden').value = skills.join(',')
+}
+
+// ── Submit ────────────────────────────────────────────────────
+function handleSubmit() {
+  const hasResumes = document.getElementById('resume-input').files?.length > 0
+  const hasCsv     = document.getElementById('csv-input').files?.length > 0
+  if(!hasResumes && !hasCsv) { alert('Please upload at least one resume file or CSV.'); return }
+  document.getElementById('proc-overlay').classList.add('show')
+  document.getElementById('submit-btn').disabled = true
+  document.getElementById('spinner').style.display = 'block'
+  const steps = ['ps1','ps2','ps3','ps4']
+  let i = 0
+  const advance = setInterval(() => {
+    if(i > 0) document.getElementById(steps[i-1]).classList.remove('active')
+    if(i < steps.length) document.getElementById(steps[i]).classList.add('active')
+    i++
+    if(i >= steps.length) clearInterval(advance)
+  }, 4000)
+  document.getElementById('main-form').submit()
+}
+
+// ── 3D CUBE 1 ─────────────────────────────────────────────────
+;(function(){
+  const w = document.getElementById('geoWrap')
+  if(!w) return
+  const inner = document.createElement('div')
+  inner.className = 'geo-inner'
+  const s = 72, h = s/2
+  const faces = [
+    {transform:`rotateY(0deg) translateZ(${h}px)`},
+    {transform:`rotateY(180deg) translateZ(${h}px)`},
+    {transform:`rotateY(90deg) translateZ(${h}px)`},
+    {transform:`rotateY(-90deg) translateZ(${h}px)`},
+    {transform:`rotateX(90deg) translateZ(${h}px)`},
+    {transform:`rotateX(-90deg) translateZ(${h}px)`},
+  ]
+  faces.forEach(f => {
+    const d = document.createElement('div')
+    d.className = 'geo-face'
+    d.style.cssText = `width:${s}px;height:${s}px;top:0;left:0;transform:${f.transform};`
+    inner.appendChild(d)
+  })
+  w.appendChild(inner)
+})()
+
+// ── 3D CUBE 2 ─────────────────────────────────────────────────
+;(function(){
+  const w = document.getElementById('geoWrap2')
+  if(!w) return
+  const inner = document.createElement('div')
+  inner.className = 'geo-inner2'
+  const s = 56, h = s/2
+  const faces = [
+    {transform:`rotateY(0deg) translateZ(${h}px)`},
+    {transform:`rotateY(180deg) translateZ(${h}px)`},
+    {transform:`rotateY(90deg) translateZ(${h}px)`},
+    {transform:`rotateY(-90deg) translateZ(${h}px)`},
+    {transform:`rotateX(90deg) translateZ(${h}px)`},
+    {transform:`rotateX(-90deg) translateZ(${h}px)`},
+  ]
+  faces.forEach(f => {
+    const d = document.createElement('div')
+    d.className = 'geo-face2'
+    d.style.cssText = `width:${s}px;height:${s}px;top:0;left:0;transform:${f.transform};`
+    inner.appendChild(d)
+  })
+  w.appendChild(inner)
+})()
+
+// ── PYRAMID ───────────────────────────────────────────────────
+;(function(){
+  const w = document.getElementById('pyrWrap')
+  if(!w) return
+  const inner = document.createElement('div')
+  inner.className = 'pyramid-inner'
+  const faces = [
+    {transform:'rotateY(0deg) translateZ(32px)'},
+    {transform:'rotateY(90deg) translateZ(32px)'},
+    {transform:'rotateY(180deg) translateZ(32px)'},
+    {transform:'rotateY(270deg) translateZ(32px)'},
+  ]
+  faces.forEach(f => {
+    const d = document.createElement('div')
+    d.className = 'pyr-face'
+    d.style.cssText = `width:64px;height:56px;position:absolute;top:0;left:0;border:1px solid rgba(16,185,129,0.4);background:rgba(16,185,129,0.015);transform:${f.transform};`
+    inner.appendChild(d)
+  })
+  w.appendChild(inner)
+})()
+
+// ── DNA HELIX ─────────────────────────────────────────────────
+;(function(){
+  const w = document.getElementById('dnaWrap')
+  if(!w) return
+  const count = 16
+  for(let i=0;i<count;i++){
+    const t = i / count
+    const y = t * 190
+    const angle = t * Math.PI * 4
+    const x1 = 24 + Math.cos(angle) * 18
+    const x2 = 24 - Math.cos(angle) * 18
+
+    // dot A
+    const dA = document.createElement('div')
+    dA.className = 'dna-dot'
+    dA.style.cssText = `left:${x1-3}px;top:${y}px;animation-delay:${t*2}s;animation:tchipPulse ${1.5+t}s ${t*0.2}s infinite`
+    w.appendChild(dA)
+
+    // dot B
+    const dB = document.createElement('div')
+    dB.className = 'dna-dot b'
+    dB.style.cssText = `left:${x2-3}px;top:${y}px;animation-delay:${t*2+1}s;animation:tchipPulse ${1.5+t}s ${t*0.2+0.5}s infinite`
+    w.appendChild(dB)
+
+    // bar connecting
+    if(i % 2 === 0){
+      const bar = document.createElement('div')
+      bar.className = 'dna-bar'
+      const bx = Math.min(x1,x2)
+      const bw = Math.abs(x1-x2)
+      bar.style.cssText = `left:${bx}px;top:${y+2}px;width:${bw}px;opacity:0.4`
+      w.appendChild(bar)
+    }
+  }
+})()
+
+// ── FLOATING PARTICLES ────────────────────────────────────────
+;(function(){
+  const container = document.getElementById('particles')
+  if(!container) return
+  const colors = ['rgba(0,212,255,', 'rgba(99,102,241,', 'rgba(16,185,129,', 'rgba(139,92,246,']
+  for(let i=0;i<28;i++){
+    const p = document.createElement('div')
+    p.className = 'particle'
+    const size = Math.random()*3+1.5
+    const color = colors[Math.floor(Math.random()*colors.length)]
+    const duration = Math.random()*20+12
+    const delay = Math.random()*15
+    const left = Math.random()*100
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${left}%;bottom:-10px;
+      background:${color}0.7);
+      box-shadow:0 0 ${size*3}px ${color}0.5);
+      animation-duration:${duration}s;
+      animation-delay:${delay}s;
+    `
+    container.appendChild(p)
+  }
+})()
+
+// ── DATA STREAM LINES ─────────────────────────────────────────
+;(function(){
+  const container = document.getElementById('streamLines')
+  if(!container) return
+  for(let i=0;i<8;i++){
+    const line = document.createElement('div')
+    line.className = 'sline'
+    const height = Math.random()*180+80
+    const duration = Math.random()*12+8
+    const delay = Math.random()*10
+    const left = Math.random()*100
+    line.style.cssText = `
+      left:${left}%;
+      height:${height}px;
+      animation-duration:${duration}s;
+      animation-delay:${delay}s;
+    `
+    container.appendChild(line)
+  }
+})()
+</script>
+</body>
+</html>

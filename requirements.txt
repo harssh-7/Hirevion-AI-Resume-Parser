@@ -1,0 +1,12 @@
+flask>=3.0
+gunicorn>=21.2
+pandas>=2.0
+plotly>=5.18
+PyPDF2>=3.0
+python-docx>=1.1
+spacy>=3.7
+scikit-learn>=1.4
+sentence-transformers>=2.6
+numpy>=1.26
+werkzeug>=3.0
+langdetect>=1.0.9
