@@ -7,22 +7,22 @@
 
 ---
 
-## ✨ Features in hirevion
+##  Features in hirevion
 
 | Feature | Details |
 |---|---|
-| 🌙 Dark / Light Mode | Toggle in nav — persists via localStorage |
-| 🔒 Anonymization Mode | Strip PII before scoring for blind hiring |
-| ⚖ Candidate Comparison | Select 2–3 candidates → radar chart + skill table |
-| 📊 XAI Waterfall Chart | Per-candidate score breakdown bar chart |
-| 🔍 Bias Report Page | Pool-level bias analysis with charts |
-| 🔬 Research Page | Ablation study, threshold sweep, pipeline stats |
-| 🌍 Multi-language | langdetect flags non-English resumes with notice |
-| 🎯 Score Capped at 100 | Hard max enforced across all scoring paths |
+|  Dark / Light Mode | Toggle in nav — persists via localStorage |
+|  Anonymization Mode | Strip PII before scoring for blind hiring |
+|  Candidate Comparison | Select 2–3 candidates → radar chart + skill table |
+|  XAI Waterfall Chart | Per-candidate score breakdown bar chart |
+|  Bias Report Page | Pool-level bias analysis with charts |
+|  Research Page | Ablation study, threshold sweep, pipeline stats |
+|  Multi-language | langdetect flags non-English resumes with notice |
+|  Score Capped at 100 | Hard max enforced across all scoring paths |
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 hirevion/
@@ -44,7 +44,7 @@ hirevion/
 
 
 
-## 🧠 AI Pipeline
+##  AI Pipeline
 
 | Stage | Technology |
 |---|---|
@@ -62,7 +62,7 @@ hirevion/
 
 ---
 
-## 📊 Application Flow
+##  Application Flow
 
 ```
 / (Welcome) → /login → /upload
@@ -76,4 +76,4 @@ hirevion/
 
 ---
 
-*HireVion*
+*HireVion-built by Harsh Singh*
