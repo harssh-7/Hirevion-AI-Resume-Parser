@@ -1,9 +1,7 @@
 # HireVion — AI Resume Intelligence Platform
-> Final Year Engineering Project | Flask + spaCy + Sentence-BERT + XAI + Bias Detection
-
-**Theme:** Dark/Light Mode · Glassmorphism · Cyberpunk Cyan  
+| Flask + spaCy + Sentence-BERT + XAI + Bias Detection
+ 
 **Stack:** Python 3.11 · Flask · spaCy · Sentence-BERT · Plotly.js · langdetect  
-**Default Login:** `admin` / `1234`
 
 ---
 
